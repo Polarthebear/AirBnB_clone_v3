@@ -12,8 +12,15 @@ from models.review import Review
 from models.state import State
 from models.user import User
 
-classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
-           "Place": Place, "Review": Review, "State": State, "User": User}
+classes = {
+	"Amenity": Amenity, 
+	"BaseModel": BaseModel, 
+	"City": City,
+	"Place": Place, 
+	"Review": Review, 
+	"State": State, 
+	"User": User
+}
 
 
 class FileStorage:
@@ -59,7 +66,7 @@ class FileStorage:
             pass
 
     def delete(self, obj=None):
-        """delete obj from __objects if it’s inside"""
+        """delete obj from __objects if it inside"""
         if obj is not None:
             key = obj.__class__.__name__ + '.' + obj.id
             if key in self.__objects:
@@ -68,3 +75,24 @@ class FileStorage:
     def close(self):
         """call reload() method for deserializing the JSON file to objects"""
         self.reload()
+
+    def get(self, cls, id):
+        """Get an object from file storage"""
+        if cls is not None and type(cls) is str and id is not None and\
+           type(id) is str and cls in classes:
+            key = cls + '.' + id
+            obj = self.__objects.get(key, None)
+            return obj
+        else:
+            return None
+
+    def count(self, cls=None):
+        """Count the number of objects in storage"""
+        classes = 0
+        if type(cls) == str and cls in classes:
+            cls = classes[cls]
+            number = self.__session.query(cls).count()
+        elif cls is None:
+            for cls in classes.values():
+                number += self.__session.query(cls).count()
+        return number
